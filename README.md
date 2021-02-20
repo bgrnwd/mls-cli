@@ -13,9 +13,14 @@ Check [Major League Soccer](https://www.mlssoccer.com/) standings, scores, and s
   - [Usage](#usage)
     - [Game](#game)
     - [Player](#player)
-      - [Get regular season stats](#get-regular-season-stats)
-      - [Get playoff stats](#get-playoff-stats)
+      - [Regular season stats](#regular-season-stats)
+      - [Playoff stats](#playoff-stats)
     - [Standings](#standings)
+      - [Supporter's Shields](#supporters-shields)
+      - [Conference](#conference)
+    - [Transactions](#transactions)
+    - [Team](#team)
+    - [League](#league)
   - [Contributing](#contributing)
   - [License](#license)
 
@@ -33,30 +38,46 @@ TODO
 
 ### Player
 
-#### Get regular season stats
+#### Regular season stats
 
-```bash
-mls p "Andre Blake" -r
+```sh
+mls p --regular "Andre Blake"
 ```
 
-#### Get playoff stats
+#### Playoff stats
 
-```bash
-mls p "Ilsinho" -p
+```sh
+mls p --playoffs "Ilsinho"
 ```
 
 ### Standings
 
-```bash
+#### Supporter's Shields
+
+```sh
 mls s
 ```
 
-Will return the supporters shield standings. If you want to see each conference individually, run
+#### Conference
 
-```bash
+```sh
 mls s east
 
 mls s west
+```
+
+### Transactions
+
+### Team
+
+```sh
+mls t --team "Philadelphia Union"
+```
+
+### League
+
+```sh
+mls t --year 2019
 ```
 
 ## Contributing
