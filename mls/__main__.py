@@ -3,12 +3,14 @@ from rich.console import Console
 from rich.table import Table
 from pandas import read_html, DataFrame
 from typing import Optional
+from datetime import datetime
 
 app = Typer()
 console = Console()
+dt = datetime.today()
 
 
-def _filter_and_create_rich_table(df: DataFrame, title: str) -> None:
+def _filter_and_create_rich_table(df: DataFrame, title: str) -> Table:
     """
     Takes a DataFrame and drops any columns where all values are null.
     Converts the DataFrame to a rich table and prints the output to the
@@ -29,17 +31,19 @@ def _filter_and_create_rich_table(df: DataFrame, title: str) -> None:
 
     console.print(table)
 
+    return table
 
-@app.command("g")
-@app.command("game")
-def game(date: Optional[str] = Argument(None)) -> None:
-    """
-    Gets the current status of a game
 
-    :param date: date
-    :returns: None
-    """
-    echo("Game on!")
+# @app.command("g")
+# @app.command("game")
+# def game(date: Optional[str] = Argument(None)) -> None:
+#     """
+#     Gets the current status of a game
+
+#     :param date: date
+#     :returns: None
+#     """
+#     # TODO
 
 
 @app.command("s")
@@ -92,12 +96,14 @@ def player(
     """
     PLAYER_URL = f"https://www.mlssoccer.com/players/{name.replace(' ','-').lower()}"
     player_data = read_html(PLAYER_URL)
+    df = DataFrame()
+    heading = ""
     if regular:
         df = player_data[0]
-        heading = "Career Statistics (Regular Season)"
+        heading = f"{name} - Career Statistics (Regular Season)"
     elif playoffs:
         df = player_data[1]
-        heading = "Career Statistics (Playoffs)"
+        heading = f"{name} - Career Statistics (Playoffs)"
     else:
         echo("Option not recognized")
         Exit(1)
@@ -107,7 +113,9 @@ def player(
 
 @app.command("t")
 @app.command("transactions")
-def transactions(team: str, year: str) -> None:
+def transactions(
+    year: str = dt.year, team: str = Option("", help="Full team name")
+) -> None:
     """
     Queries the MLS website and prints the transactions for a given year
     and/or team
@@ -117,18 +125,30 @@ def transactions(team: str, year: str) -> None:
     :returns: None
     """
     TRANSACTION_URL = f"https://www.mlssoccer.com/transactions/{year}"
-    teams = read_html(TRANSACTION_URL, header=1)
+    teams = read_html(TRANSACTION_URL, header=0)
     if team:
         for t in teams:
-            if team in t:
+            if team in t.keys()[0]:
                 df = t
-
-        _filter_and_create_rich_table(df, f"{year} {team.capitalize()} Transactions")
+            else:
+                continue
+        # TODO clean up the way this table is printed
+        if not df.empty:
+            _filter_and_create_rich_table(
+                df, f"{year} {team.capitalize()} Transactions"
+            )
+        else:
+            echo("Team not found")
+            Exit(1)
 
     else:
         for t in teams:
             _filter_and_create_rich_table(t, "Transactions")
 
 
-if __name__ == "__main__":
+def main():
     app()
+
+
+if __name__ == "__main__":
+    main()
